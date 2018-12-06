@@ -1,0 +1,190 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class MainMenus : MonoBehaviour {
+
+    public void PlayGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+	
+    public void QuitGame()
+    {
+        Debug.Log("Quitting Game");
+        Application.Quit();
+    }
+}
+---------------------------------------------
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class ClickToMove : MonoBehaviour {
+
+    private Animator mAnimator;
+
+    private NavMeshAgent mNavMeshAgent;
+
+    private bool mRunning = false;
+    [SerializeField]
+    private GameObject[] Spelltest;
+
+    void Start () {
+        mAnimator = GetComponent<Animator>();
+        mNavMeshAgent = GetComponent<NavMeshAgent>();
+
+    }
+	void Update () {
+
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit hit;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+
+            if (Physics.Raycast(ray, out hit, 100))
+            {
+                mNavMeshAgent.destination = hit.point;
+            }
+        }
+        if (mNavMeshAgent.remainingDistance <= mNavMeshAgent.stoppingDistance)
+        {
+            mRunning = false;
+        }
+        else
+        {
+            mRunning = true;
+        }
+
+        mAnimator.SetBool("running", mRunning);
+       
+    }
+    public void castspell()
+    {
+        Instantiate(Spelltest[0], transform.position, Quaternion.identity);
+    }
+}
+----------------------------------------------------------
+using UnityEngine;
+
+public class Camerarts : MonoBehaviour {
+
+    public float panborderThickness = 20f;
+
+	
+	void Update () {
+        Vector3 pos = transform.position;
+        if (Input.mousePosition.y>=Screen.height-panborderThickness)
+        {
+            pos.z += panborderThickness * Time.deltaTime;
+        }
+	}
+	
+	
+	
+}
+---------------------------------------------------------------------
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CampHP : MonoBehaviour {
+
+    float  DamageAmount = 50.0f;
+    float Maxhealth = 200.0f;
+    public float health = 0.0f;
+    float healthregen = 0.01f;
+
+    void Start()
+    {
+        health = Maxhealth;
+        TakeDamage(45);
+    }
+    void Update () {
+        if (health <= Maxhealth)
+        {
+            health = health + healthregen;
+        }
+	}
+
+    void TakeDamage(float dmg)
+    {
+        health = health - dmg;
+    }
+
+}
+--------------------------------------------------------------------
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class MonsterCamps : MonoBehaviour {
+
+    public GameObject Unit;
+    public Transform player;
+    static Animator anim;
+
+
+
+
+
+
+	void Start () {
+        anim = GetComponent < Animator > ();
+	}
+	
+	
+	void Update ()
+    {
+        if (Vector3.Distance(player.position, this.transform.position) < 25)
+        {
+            Vector3 direction = player.position - this.transform.position;
+            this.transform.rotation = Quaternion.Slerp(this.transform.rotation,
+                Quaternion.LookRotation(direction), 0.1f);
+
+            anim.SetBool("Isiddle", false);
+            if (direction.magnitude > 10)
+            {
+                this.transform.Translate(0, 0, 0.05f);
+                anim.SetBool("IsWalking", true);
+                anim.SetBool("IsAttacking", false);
+            }
+            else
+            {
+                anim.SetBool("IsAttacking", true);
+                anim.SetBool("IsWalking", false);
+            }
+        }
+        else
+        {
+            anim.SetBool("Isiddle", true);
+            anim.SetBool("IsWalking", false);
+            anim.SetBool("IsAttacking", false);
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            Target();
+        }
+    }
+    void Target()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit Hit;
+
+        if(Physics.Raycast(ray,out Hit, 10000))
+        {
+               if(Hit.transform.tag== "Enemy")
+            {
+                Unit = Hit.transform.gameObject;
+            }
+        }
+
+    }
+
+}
+--------------------------------------------------------------------------------------
