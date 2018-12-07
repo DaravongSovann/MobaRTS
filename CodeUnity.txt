@@ -16,6 +16,8 @@ public class MainMenus : MonoBehaviour {
         Application.Quit();
     }
 }
+
+play Animations
 ---------------------------------------------
 using System.Collections;
 using System.Collections.Generic;
